@@ -1,0 +1,27 @@
+"pair","cat_a","cat_b","n_pair","support_pct","conf_a_to_b_pct","conf_b_to_a_pct","lift"
+"audio + watches_gifts","audio","watches_gifts",6,0.83,100.00,15.00,18.15
+"luggage_accessories + stationery","luggage_accessories","stationery",5,0.69,33.33,16.13,7.81
+"health_beauty + perfumery","health_beauty","perfumery",11,1.52,15.94,44.00,4.63
+"computers_accessories + telephony","computers_accessories","telephony",6,0.83,11.76,22.22,3.16
+"bed_bath_table + home_confort","bed_bath_table","home_confort",43,5.92,21.72,86.00,3.15
+"computers_accessories + electronics","computers_accessories","electronics",5,0.69,9.80,21.74,3.09
+"art + furniture_decor","art","furniture_decor",5,0.69,83.33,2.46,2.98
+"baby + toys","baby","toys",19,2.62,20.43,38.00,2.97
+"construction_tools_construction + garden_tools","construction_tools_construction","garden_tools",5,0.69,29.41,6.85,2.93
+"stationery + toys","stationery","toys",6,0.83,19.35,12.00,2.81
+"garden_tools + home_construction","garden_tools","home_construction",7,0.96,9.59,26.92,2.68
+"cool_stuff + telephony","cool_stuff","telephony",6,0.83,9.09,22.22,2.44
+"baby + cool_stuff","baby","cool_stuff",20,2.75,21.51,30.30,2.37
+"health_beauty + sports_leisure","health_beauty","sports_leisure",14,1.93,20.29,20.90,2.20
+"construction_tools_lights + furniture_decor","construction_tools_lights","furniture_decor",11,1.52,61.11,5.42,2.19
+"auto + computers_accessories","auto","computers_accessories",5,0.69,14.29,9.80,2.03
+"furniture_decor + home_construction","furniture_decor","home_construction",13,1.79,6.40,50.00,1.79
+"computers_accessories + garden_tools","computers_accessories","garden_tools",9,1.24,17.65,12.33,1.76
+"furniture_decor + furniture_living_room","furniture_decor","furniture_living_room",7,0.96,3.45,46.67,1.67
+"cool_stuff + toys","cool_stuff","toys",7,0.96,10.61,14.00,1.54
+"sports_leisure + watches_gifts","sports_leisure","watches_gifts",5,0.69,7.46,12.50,1.35
+"bed_bath_table + furniture_decor","bed_bath_table","furniture_decor",70,9.64,35.35,34.48,1.26
+"bed_bath_table + office_furniture","bed_bath_table","office_furniture",5,0.69,2.53,33.33,1.22
+"housewares + sports_leisure","housewares","sports_leisure",11,1.52,10.78,16.42,1.17
+"computers_accessories + cool_stuff","computers_accessories","cool_stuff",5,0.69,9.80,7.58,1.08
+"garden_tools + housewares","garden_tools","housewares",11,1.52,15.07,10.78,1.07
