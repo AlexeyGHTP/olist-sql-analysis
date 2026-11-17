@@ -11,8 +11,8 @@ WITH monthly AS (
 sellers AS (
     SELECT
         seller_id,
-        SUM(month_revenue)                                    AS total_revenue,
-        COUNT(*)                                              AS active_months,
+        SUM(month_revenue) AS total_revenue,
+        COUNT(*) AS active_months,
         STDDEV(month_revenue) / NULLIF(AVG(month_revenue), 0) AS cv
     FROM monthly
     GROUP BY seller_id
@@ -34,7 +34,7 @@ labeled AS (
             ELSE 'C'
         END AS abc,
         CASE
-            WHEN cv IS NULL THEN 'N/A'   -- один месяц продаж
+            WHEN cv IS NULL THEN 'N/A'
             WHEN cv < 0.5   THEN 'X'
             WHEN cv <= 1    THEN 'Y'
             ELSE 'Z'

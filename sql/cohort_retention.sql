@@ -1,30 +1,26 @@
 WITH valid_orders AS (
     SELECT
         c.customer_unique_id,
-        DATE_TRUNC('month', o.order_purchase_timestamp)::date AS order_month
+        DATE_TRUNC('month', o.order_purchase_timestamp)::date AS order_month,
+        (EXTRACT(YEAR FROM o.order_purchase_timestamp)::int * 12
+         + EXTRACT(MONTH FROM o.order_purchase_timestamp)::int) AS month_num
     FROM orders o
     JOIN customers c ON c.customer_id = o.customer_id
     WHERE o.order_status NOT IN ('canceled', 'unavailable')
 ),
-cohorts AS (
-    SELECT customer_unique_id, MIN(order_month) AS cohort_month
-    FROM valid_orders
-    GROUP BY customer_unique_id
-),
 activity AS (
     SELECT DISTINCT
-        v.customer_unique_id,
-        c.cohort_month,
-        ((EXTRACT(YEAR  FROM v.order_month) - EXTRACT(YEAR  FROM c.cohort_month)) * 12
-        + EXTRACT(MONTH FROM v.order_month) - EXTRACT(MONTH FROM c.cohort_month))::int AS month_idx
-    FROM valid_orders v
-    JOIN cohorts c ON c.customer_unique_id = v.customer_unique_id
+        customer_unique_id,
+        month_num,
+        MIN(order_month) OVER (PARTITION BY customer_unique_id) AS cohort_month,
+        MIN(month_num) OVER (PARTITION BY customer_unique_id) AS cohort_num
+    FROM valid_orders
 ),
 agg AS (
-    SELECT cohort_month, month_idx, COUNT(*) AS active_customers
+    SELECT cohort_month, month_num - cohort_num AS month_idx, COUNT(*) AS active_customers
     FROM activity
-    WHERE month_idx <= 12
-    GROUP BY cohort_month, month_idx
+    WHERE month_num - cohort_num <= 12
+    GROUP BY 1, 2
 )
 SELECT
     cohort_month,

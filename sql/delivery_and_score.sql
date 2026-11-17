@@ -1,13 +1,7 @@
 WITH last_review AS (
-    SELECT order_id, review_score
-    FROM (
-        SELECT order_id, review_score,
-               ROW_NUMBER() OVER (PARTITION BY order_id
-                                  ORDER BY review_creation_date DESC,
-                                           review_answer_timestamp DESC) AS rn
-        FROM order_reviews
-    ) r
-    WHERE rn = 1
+    SELECT DISTINCT ON (order_id) order_id, review_score
+    FROM order_reviews
+    ORDER BY order_id, review_creation_date DESC, review_answer_timestamp DESC
 ),
 delivered AS (
     SELECT
@@ -33,8 +27,8 @@ bas AS (
 )
 SELECT
     basket,
-    COUNT(*)                                                             AS orders,
-    ROUND(AVG(review_score), 2)                                          AS avg_score,
+    COUNT(*) AS orders,
+    ROUND(AVG(review_score), 2) AS avg_score,
     ROUND(100.0 * COUNT(*) FILTER (WHERE review_score <= 2) / COUNT(*), 2) AS low_score_pct,
     ROUND(100.0 * COUNT(*) FILTER (WHERE review_score = 5)  / COUNT(*), 2) AS high_score_pct
 FROM bas
@@ -43,40 +37,35 @@ ORDER BY basket;
 
 
 
-WITH last_review AS (
-    SELECT order_id, review_score
-    FROM (
-        SELECT order_id, review_score,
-               ROW_NUMBER() OVER (PARTITION BY order_id
-                                  ORDER BY review_creation_date DESC,
-                                           review_answer_timestamp DESC) AS rn
-        FROM order_reviews
-    ) r
-    WHERE rn = 1
-),
-delivered AS (
-    SELECT
-        o.order_id,
-        o.order_delivered_customer_date::date
-          - o.order_estimated_delivery_date::date AS delay_days,
-        r.review_score
+WITH late AS (
+    SELECT o.order_id
     FROM orders o
-    JOIN last_review r ON r.order_id = o.order_id
     WHERE o.order_status = 'delivered'
       AND o.order_delivered_customer_date IS NOT NULL
-)
-, late_cat AS (
+      AND o.order_delivered_customer_date::date > o.order_estimated_delivery_date::date
+),
+late_scored AS (
+    SELECT l.order_id, r.review_score
+    FROM late l
+    CROSS JOIN LATERAL (
+        SELECT rv.review_score
+        FROM order_reviews rv
+        WHERE rv.order_id = l.order_id
+        ORDER BY rv.review_creation_date DESC, rv.review_answer_timestamp DESC
+        LIMIT 1
+    ) r
+),
+late_cat AS (
     SELECT DISTINCT
-        d.order_id,
-        d.review_score,
+        ls.order_id,
+        ls.review_score,
         COALESCE(t.product_category_name_english, p.product_category_name) AS category
-    FROM delivered d
-    JOIN order_items oi ON oi.order_id = d.order_id
-    JOIN products p     ON p.product_id = oi.product_id
+    FROM late_scored ls
+    JOIN order_items oi ON oi.order_id = ls.order_id
+    JOIN products p ON p.product_id = oi.product_id
     LEFT JOIN product_category_name_translation t
            ON t.product_category_name = p.product_category_name
-    WHERE d.delay_days > 0
-      AND p.product_category_name IS NOT NULL
+    WHERE p.product_category_name IS NOT NULL
 )
 SELECT
     category,

@@ -5,8 +5,10 @@ WITH daily AS (
         SUM(oi.price) AS revenue
     FROM orders o
     JOIN order_items oi ON oi.order_id = o.order_id
-    JOIN customers c    ON c.customer_id = o.customer_id
+    JOIN customers c ON c.customer_id = o.customer_id
     WHERE o.order_status NOT IN ('canceled', 'unavailable')
+      AND o.order_purchase_timestamp >= '2017-01-01'
+      AND o.order_purchase_timestamp < '2018-09-01'
     GROUP BY 1, 2
 ),
 calendar AS (
@@ -22,12 +24,12 @@ filled AS (
     FROM calendar cal
     LEFT JOIN daily d
         ON d.customer_state = cal.customer_state
-       AND d.order_date     = cal.order_date
+       AND d.order_date = cal.order_date
 ),
 stats AS (
     SELECT
         *,
-        AVG(daily_revenue)    OVER w7  AS moving_avg_7,
+        AVG(daily_revenue) OVER w7  AS moving_avg_7,
         STDDEV(daily_revenue) OVER w30 AS moving_std_30
     FROM filled
     WINDOW
@@ -40,7 +42,7 @@ SELECT
     customer_state,
     order_date,
     daily_revenue,
-    ROUND(moving_avg_7, 2)  AS moving_avg_7,
+    ROUND(moving_avg_7, 2) AS moving_avg_7,
     ROUND(moving_std_30, 2) AS moving_std_30,
     CASE
         WHEN moving_std_30 > 0 AND ABS(daily_revenue - moving_avg_7) > 2 * moving_std_30
